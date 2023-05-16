@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 from flow import FlowSet, Flow
 from topology import Topology
-from utils.config import K_ALTER, LINK_CAP, RES_PATH
+from utils.config import K_ALTER, LINK_CAP, LCP_RES_PATH
 from utils.io_utils import write_dict2json
 from utils.redis_utils import get_slice
 
@@ -60,14 +60,9 @@ class LCP:
     @staticmethod
     def find_min_switches_routing(p_set: dict) -> dict:
         """通过使用p_set构建图 寻找最短路径 从而找到切换次数最少的路径"""
-        # logging.error(p_set)
-        # logging.error(msg=f'len={len(list(p_set.keys()))}, list_keys={list(p_set.keys())}')
         nodes = list(p_set.keys())  # 节点
         edges = [(nodes[i], nodes[i + 1]) for i in range(len(nodes) - 1)]
-        # logging.error(msg=f'edges={edges}')
         for src in nodes:
-            # logging.error(msg=f'p_set.get(src)={p_set.get(src)}')
-            # logging.error(msg=f'cur_key={src}, p_set.get(src).keys()={list(p_set.get(src).keys())}')
             for dst in list(p_set.get(src).keys()):
                 if src != dst and (src, dst) not in edges and (dst, src) not in edges:
                     edges.append((src, dst))
@@ -84,8 +79,9 @@ class LCP:
         while idx < len(path):
             slice_key = path[idx]
             for k, v in p_set.get(slice_key).items():
-                routing_res[k] = v
-            idx += 1 if len(list(p_set.get(slice_key).keys())) == 1 else 2
+                if k not in routing_res:
+                    routing_res[k] = v
+            idx += 1
 
         return routing_res
 
@@ -173,7 +169,7 @@ class LCP:
             # 更新拓扑的链路容量
             self.update_link_cap(flow=flow, routing_res=routing_res)
             # 写json文件到本地
-            write_dict2json(data=routing_res, file_name=f'{no}-{flow}')
+            write_dict2json(data=routing_res, dir_path=LCP_RES_PATH, file_name=f'{no}-{flow}')
             logging.info(msg=f'{flow} 路由结果写json文件成功')
         logging.error(msg=f'无法分配的业务集合为: {unable_routing_list}')
 
