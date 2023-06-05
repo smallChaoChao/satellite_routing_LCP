@@ -4,6 +4,7 @@
 # @Author  : smallChaoChao
 # @File    : redis_utils.py
 import json
+import random
 from statistics import mean
 
 import redis
@@ -109,4 +110,8 @@ def merge_slice():
 
 
 if __name__ == "__main__":
-    merge_slice()
+    # merge_slice()
+    for i in range(32):
+        # print(150 - (i-10)**2 )
+        print(random.randint(a=0, b=(32 - i)))
+

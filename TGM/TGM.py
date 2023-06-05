@@ -9,8 +9,9 @@ import logging
 import requests
 
 from LCP.flow import FlowSet, Flow
-from utils.config import URL_TGM, TGM_RES_PATH
+from utils.config import URL_TGM, TGM_RES_PATH, SLICE_KEY_EXTRACT
 from utils.io_utils import write_dict2json
+from utils.redis_utils import get_slice_key
 
 logging.basicConfig(level=logging.INFO, format="[%(filename)s, line %(lineno)d] %(message)s")
 
@@ -22,8 +23,7 @@ class TGM:
         self.flow_set = FlowSet().convert2flow_set()
         logging.info(msg='获取TS流量集合完成')
 
-    @staticmethod
-    def calculate_single_routing(flow: Flow):
+    def calculate_single_routing(self, flow: Flow):
         """计算单个流的路由结果"""
         # 将flow转为字典的data
         data = {'srcSatellite': flow.src_node,
@@ -32,7 +32,21 @@ class TGM:
                 'tos': flow.priority}
         routing_res = requests.post(url=URL_TGM, data=data)
         routing_res = json.loads(routing_res.content.decode())
-        return routing_res
+        return self.modify_slice(routing_res=routing_res)
+
+    @staticmethod
+    def modify_slice(routing_res: dict) -> dict or None:
+        """更改TGM路由结果的时间片信息 将其改为前10s对应"""
+        res_dict = {}
+        slice_keys = get_slice_key(key=SLICE_KEY_EXTRACT)
+        idx = 0
+        for k, v in routing_res.items():
+            if k.split("-")[0] != slice_keys[idx].split("-")[0]:
+                logging.error(msg="时间片错误")
+                return None
+            res_dict[slice_keys[idx]] = v
+            idx += 1
+        return res_dict
 
     def calculate_routing(self):
         """获取所有流的路由结果 然后序列化输出到文件"""

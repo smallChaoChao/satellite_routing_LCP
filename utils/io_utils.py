@@ -4,10 +4,14 @@
 # @Author  : smallChaoChao
 # @File    : io_utils.py
 import json
-import logging
 import os
 
-from utils.config import LCP_RES_PATH
+
+def read_json2dict(path: str) -> dict:
+    """将json文件读取到dict中"""
+    with open(path, 'r') as f:
+        data = json.load(f)
+    return data
 
 
 def write_dict2json(data: dict, dir_path: str, file_name: str):
