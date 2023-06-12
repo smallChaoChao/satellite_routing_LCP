@@ -39,6 +39,7 @@ class LCP:
         """返回一条符合时延以及链路容量约束的最短路径和时延"""
         res_path, res_delay, res_cap, cnt = [], 0, 0, 0
         for path in nx.shortest_simple_paths(graph, source=flow.src_node, target=flow.dst_node, weight='weight'):
+            print(path)
             path = [(path[i], path[i + 1]) for i in range(len(path) - 1)]
             delay = sum([graph.edges[i]['weight'] for i in path])
             # 判断是否满足容量约束
@@ -166,6 +167,7 @@ class LCP:
                 unable_routing_list.append(f'{no}-{flow}')
                 # continue
                 return
+            return
             # 更新拓扑的链路容量
             self.update_link_cap(flow=flow, routing_res=routing_res)
             # 写json文件到本地
