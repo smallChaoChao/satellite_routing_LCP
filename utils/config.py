@@ -33,6 +33,10 @@ LCP_RES_PATH = "{}/data_out/LCP".format(os.path.dirname(os.getcwd()))
 DT_DVTR_RES_PATH = "{}/data_out/DT_DVTR".format(os.path.dirname(os.getcwd()))
 # TGM路由结果的路径
 TGM_RES_PATH = "{}/data_out/TGM".format(os.path.dirname(os.getcwd()))
+# Lshade路由结果的路径
+LSHADE_RES_PATH = "{}/data_out/LGY".format(os.path.dirname(os.getcwd()))
+# ILP路由结果的路径
+ILP_RES_PATH = "{}/data_out/ILP".format(os.path.dirname(os.getcwd()))
 # 起始节点
 SRC_NODE = 'start'
 # 终止节点
